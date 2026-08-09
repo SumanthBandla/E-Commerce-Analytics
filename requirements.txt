@@ -1,0 +1,15 @@
+# Core data analysis libraries
+pandas>=2.0
+numpy>=1.24
+matplotlib>=3.7
+seaborn>=0.13
+
+# Jupyter notebook tooling
+jupyterlab>=4.0
+notebook>=7.0
+nbformat>=5.9
+nbconvert>=7.10
+
+# Optional: connect Python to MySQL for the SQL stage
+# mysql-connector-python>=8.3
+# pymysql>=1.1

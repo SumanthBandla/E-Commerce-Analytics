@@ -1,0 +1,166 @@
+E-COMMERCE ANALYTICS - DATA CLEANING REPORT
+Generated: 2026-08-09 11:04:23
+
+======================================================================
+STEP 1: LOAD RAW DATASET
+======================================================================
+Raw dataset loaded from: ecommerce_dataset.csv
+Dataset shape (rows, columns): (5508, 20)
+
+Column names:
+    - Order ID
+    - Order Date
+    - Customer ID
+    - Customer Name
+    - Segment
+    - Country
+    - State
+    - City
+    - Region
+    - Product ID
+    - Product Name
+    - Category
+    - Sub-Category
+    - Sales
+    - Quantity
+    - Discount
+    - Profit
+    - Shipping Cost
+    - Shipping Mode
+    - Payment Mode
+
+First 5 rows (preview):
+            Order ID  Order Date Customer ID    Customer Name    Segment        Country          State         City   Region Product ID        Product Name         Category Sub-Category   Sales  Quantity  Discount  Profit  Shipping Cost   Shipping Mode      Payment Mode
+    0  CA-2019-14748  2019-10-24    CUS-0632      Carol Ramos   Consumer  United States       Virginia    Arlington     East   FUR-0032   Summit Chairs 951        Furniture       Chairs  992.70         2      0.00  185.91          38.04    Second Class  Cash on Delivery
+    1  CA-2019-11200  2019-02-25    CUS-0436  Jessica Bennett   Consumer  United States  Massachusetts       Boston     East   OFF-0099        Ergo Art 414  Office Supplies          Art   62.97         1      0.30    1.65           9.53    Second Class               UPI
+    2  CA-2020-15223  2020-07-23    CUS-0483      Paul Brooks   Consumer  United States      Minnesota  Minneapolis  Central   OFF-0064  Vertex Binders 563  Office Supplies      Binders  141.08         2      0.15   26.11          13.38     First Class               UPI
+    3  CA-2022-14548  2022-09-25    CUS-0101       Ella Reddy   Consumer  United States     New Jersey       Newark     East   OFF-0073    Vertex Paper 524  Office Supplies        Paper  100.23         2      0.10   17.39          10.45    Second Class        Debit Card
+    4  CA-2021-11863  2021-12-25    CUS-0453     Gary Sanders  Corporate  United States       Missouri  Kansas City  Central   OFF-0118   Ergo Supplies 345  Office Supplies     Supplies   57.29         2      0.20   11.29           5.41  Standard Class               UPI
+
+======================================================================
+STEP 2: CHECK DATA TYPES
+======================================================================
+                 dtype
+Order ID           str
+Order Date         str
+Customer ID        str
+Customer Name      str
+Segment            str
+Country            str
+State              str
+City               str
+Region             str
+Product ID         str
+Product Name       str
+Category           str
+Sub-Category       str
+Sales          float64
+Quantity         int64
+Discount       float64
+Profit         float64
+Shipping Cost  float64
+Shipping Mode      str
+Payment Mode       str
+
+Object (text) columns: 15
+Numerical columns: 5
+
+======================================================================
+STEP 3: CHECK MISSING VALUES
+======================================================================
+Columns with missing values (count / percentage):
+    Shipping Cost: 27  (0.49%)
+
+======================================================================
+STEP 4: HANDLE MISSING VALUES
+======================================================================
+    Shipping Cost: imputed 27 missing values with median (20.89).
+Remaining missing values after cleaning: 0
+
+======================================================================
+STEP 5: CHECK DUPLICATE ORDERS
+======================================================================
+Fully-duplicated rows found: 8
+Removing 8 duplicated row(s)...
+Rows after de-duplication: 5500
+
+======================================================================
+STEP 6: CONVERT 'Order Date' TO DATETIME
+======================================================================
+Date range: 2019-01-01 to 2023-12-28
+
+======================================================================
+STEP 7: VALIDATE NUMERICAL COLUMNS
+======================================================================
+Descriptive statistics for numerical columns:
+    Sales          mean=      783.70  min=      8.39  max=     8880.67
+    Quantity       mean=        3.28  min=      1.00  max=        7.00
+    Discount       mean=        0.17  min=      0.00  max=        0.50
+    Profit         mean=      107.11  min=   -468.50  max=     2826.43
+    Shipping Cost  mean=       30.03  min=      5.08  max=      418.76
+
+======================================================================
+STEP 8: DETECT INVALID SALES / PROFIT VALUES
+======================================================================
+    Rows with Sales <= 0            : 0
+    Rows with Quantity <= 0         : 0
+    Rows with Discount outside [0,1]: 0
+    Rows with negative Profit (losses): 614  (kept intentionally - losses are valid business data)
+    Rows with negative Shipping Cost : 0
+    Note: negative Profit values are legitimate (loss-making orders) and are kept.
+
+======================================================================
+STEP 9: CHECK INCONSISTENT CATEGORICAL VALUES
+======================================================================
+    Segment: unique values -> ['Consumer', 'Corporate', 'Home Office']
+    Country: unique values -> ['United States']
+    State: unique values -> ['Alabama', 'Arizona', 'California', 'Colorado', 'Connecticut', 'Florida', 'Georgia', 'Illinois', 'Kansas', 'Kentucky', 'Louisiana', 'Maryland', 'Massachusetts', 'Minnesota', 'Missouri', 'Nevada', 'New Jersey', 'New York', 'North Carolina', 'Oklahoma', 'Oregon', 'Pennsylvania', 'Tennessee', 'Texas', 'Utah', 'Virginia', 'Washington', 'Wisconsin']
+    Region: unique values -> ['Central', 'East', 'South', 'West']
+    Category: unique values -> ['Furniture', 'Office Supplies', 'Technology']
+    Sub-Category: unique values -> ['Accessories', 'Appliances', 'Art', 'Binders', 'Bookcases', 'Chairs', 'Copiers', 'Envelopes', 'Fasteners', 'Furnishings', 'Labels', 'Machines', 'Paper', 'Phones', 'Storage', 'Supplies', 'Tables']
+    Shipping Mode: unique values -> ['First Class', 'Same Day', 'Second Class', 'Standard Class']
+    Payment Mode: unique values -> ['Cash on Delivery', 'Credit Card', 'Debit Card', 'Net Banking', 'UPI']
+    No inconsistent categorical values detected.
+
+Category <-> Sub-Category cross-check (should be internally consistent):
+       Category Sub-Category  count
+      Furniture    Bookcases    407
+      Furniture       Chairs    258
+      Furniture  Furnishings    372
+      Furniture       Tables    350
+Office Supplies   Appliances    393
+Office Supplies          Art    311
+Office Supplies      Binders    330
+Office Supplies    Envelopes    351
+Office Supplies    Fasteners    281
+Office Supplies       Labels    252
+Office Supplies        Paper    285
+Office Supplies      Storage    285
+Office Supplies     Supplies    261
+     Technology  Accessories    410
+     Technology      Copiers    416
+     Technology     Machines    268
+     Technology       Phones    270
+
+======================================================================
+STEP 10: CREATE DERIVED COLUMNS
+======================================================================
+    Created: Year
+    Created: Month
+    Created: Quarter
+    Created: Order Year-Month
+    Created: Profit Margin (%)
+
+Sample of derived columns:
+Order Date  Year  Month  Quarter Order Year-Month  Profit Margin (%)
+2019-10-24  2019     10        4          2019-10              18.73
+2019-02-25  2019      2        1          2019-02               2.62
+2020-07-23  2020      7        3          2020-07              18.51
+2022-09-25  2022      9        3          2022-09              17.35
+2021-12-25  2021     12        4          2021-12              19.71
+
+======================================================================
+STEP 11: SAVE CLEANED DATASET
+======================================================================
+Cleaned dataset saved to: ecommerce_clean.csv
+Cleaned dataset shape: (5500, 25)
